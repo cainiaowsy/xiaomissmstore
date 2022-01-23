@@ -93,7 +93,7 @@
                             <th>商品数量</th>
                             <th>操作</th>
                         </tr>
-                        <c:forEach items="${info_list}" var="p">
+                        <c:forEach items="${info.list}" var="p">
                             <tr>
                                 <td valign="center" align="center"><input type="checkbox" name="ck" id="ck" value="${p.pId}" onclick="ckClick()"></td>
                                 <td>${p.pName}</td>
@@ -129,7 +129,7 @@
                                     <c:forEach begin="1" end="${info.pages}" var="i">
                                         <c:if test="${info.pageNum==i}">
                                             <li>
-                                                    <%--                                                <a href="${pageContext.request.contextPath}/prod/split.action?page=${i}" style="background-color: grey">${i}</a>--%>
+                                                    <%--     <a href="${pageContext.request.contextPath}/prod/split.action?page=${i}" style="background-color: grey">${i}</a>--%>
                                                 <a href="javascript:ajaxsplit(${i})"
                                                    style="background-color: grey">${i}</a>
                                             </li>
@@ -150,7 +150,7 @@
                                             style="color:orange;">${info.pages}</font>&nbsp;&nbsp;&nbsp;页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <c:if test="${info.pageNum!=0}">
                                             当前&nbsp;&nbsp;&nbsp;<font
-                                            style="color:orange;">${info.pageNum}</font>&nbsp;&nbsp;&nbsp;页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            style="color:#ffa500;">${info.pageNum}</font>&nbsp;&nbsp;&nbsp;页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         </c:if>
                                         <c:if test="${info.pageNum==0}">
                                             当前&nbsp;&nbsp;&nbsp;<font
@@ -220,15 +220,14 @@ alert(str+"11111111");
 <!--分页的AJAX实现-->
 <script type="text/javascript">
     function ajaxsplit(page) {
-        //异步ajax分页请求
+       //向服务器发去ajax请求，请示page页中的所有数据，在当前页上局部刷新显示
         $.ajax({
-        url:"${pageContext.request.contextPath}/prod/ajaxsplit.action",
+            url:"${pageContext.request.contextPath}/prod/ajaxSplit.action",
             data:{"page":page},
             type:"post",
-            success:function () {
-                //重新加载分页显示的组件table
-                //location.href---->http://localhost:8080/admin/login.action
-                $("#table").load("http://localhost:8080/admin/product.jsp #table");
+            success:function (){
+                //重新加载显示分页数据的容器.  即 <div id="table">
+                $("#table").load("http://localhost:8080//admin/product.jsp #table")
             }
         })
     };
