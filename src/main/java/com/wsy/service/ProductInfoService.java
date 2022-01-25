@@ -10,4 +10,13 @@ public interface ProductInfoService {
     List<ProductInfo> getAll();
     //分页显示
     PageInfo splitPage(int pagenum,int pagesize);
+    //增加商品
+     int save(ProductInfo productInfo);
+     //按id查商品
+    ProductInfo getById(int id);
+    //更新商品
+    int update(ProductInfo info);
+    //单个商品删除
+    int delete(int id);
+    int deleteBatch(String[] ids);
 }

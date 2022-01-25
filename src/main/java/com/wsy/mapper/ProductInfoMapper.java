@@ -28,4 +28,6 @@ public interface ProductInfoMapper {
     int updateByPrimaryKeySelective(ProductInfo record);
 
     int updateByPrimaryKey(ProductInfo record);
+
+    int deleteBatch(String[] ids);
 }

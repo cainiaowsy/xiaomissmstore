@@ -40,4 +40,28 @@ public class ProductInfoServiceIpml implements ProductInfoService {
         PageInfo<ProductInfo> pageInfo = new PageInfo<>(list);
         return pageInfo;
     }
+
+    @Override
+    public int save(ProductInfo productInfo) {
+        return productInfoMapper.insert(productInfo);
+    }
+
+    @Override
+    public ProductInfo getById(int id) {
+        return productInfoMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public int update(ProductInfo info) {
+        return productInfoMapper.updateByPrimaryKey(info);
+    }
+    @Override
+    public int delete(int id){
+        return productInfoMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public int deleteBatch(String[] ids) {
+        return productInfoMapper.deleteBatch(ids);
+    }
 }
