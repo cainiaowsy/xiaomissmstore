@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wsy.pojo.ProductInfo;
 import com.wsy.service.ProductInfoService;
 import com.wsy.utils.FileNameUtil;
+import com.wsy.vo.ProductInfoVo;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,7 +42,14 @@ public class ProductInfoAction {
     //显示第一页的5个商品
     @RequestMapping("/split")
     public String split(HttpServletRequest request) {
-        PageInfo info = productInfoService.splitPage(1, PAGE_SIZE);
+        PageInfo info = null;
+        Object vo = request.getSession().getAttribute("prodVo");
+        if(vo != null){
+            info = productInfoService.splitPageVo((ProductInfoVo) vo, PAGE_SIZE);
+            request.getSession().removeAttribute("prodVo");
+        }
+        else
+            info = productInfoService.splitPage(1, PAGE_SIZE);
         request.setAttribute("info",info);
         return "product";
     }
@@ -50,9 +58,9 @@ public class ProductInfoAction {
     @ResponseBody
     @RequestMapping("/ajaxSplit")
     //这里是HttpSession，不是HttpRequest，是因为生命周期的原因
-    public void ajaxSplit(int page, HttpSession session) {
+    public void ajaxSplit(ProductInfoVo vo, HttpSession session) {
         //每一页都应该是一个新的pageinfo对象，因为这个对象中的当前页，前一页，后一页等属性是根据当前页来的
-        PageInfo info = productInfoService.splitPage(page, PAGE_SIZE);
+        PageInfo info = productInfoService.splitPageVo(vo,PAGE_SIZE);
         session.setAttribute("info", info);
     }
 
@@ -99,9 +107,10 @@ public class ProductInfoAction {
     }
 
     @RequestMapping("/one")
-    public String one(int id, Model model) {
+    public String one(int id,ProductInfoVo vo, Model model,HttpSession session) {
         ProductInfo info = productInfoService.getById(id);
         model.addAttribute("prod", info);
+        session.setAttribute("prodVo",vo);
         return "update";
     }
 
@@ -127,16 +136,17 @@ public class ProductInfoAction {
     }
 
     @RequestMapping("/delete")
-    public String delete(int id, HttpServletRequest request) {
+    public String delete(int id, ProductInfoVo vo, HttpServletRequest request) {
         int num = -1;
         try {
             num = productInfoService.delete(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (num > 0)
+        if (num > 0) {
             request.setAttribute("msg", "删除成功");
-        else
+            request.getSession().setAttribute("deleteProdVo", vo);
+        }else
             request.setAttribute("msg", "删除失败");
         //删除结束后跳到
         return "forward:/prod/deleteAjaxSplit.action";
@@ -146,8 +156,13 @@ public class ProductInfoAction {
     @ResponseBody
     @RequestMapping(value = "/deleteAjaxSplit", produces = "text/html;charset=UTF-8")
     public Object deleteAjaxSplit(HttpServletRequest request) {
-        //获得第一页的数据
-        PageInfo info = productInfoService.splitPage(1, PAGE_SIZE);
+        PageInfo info = null;
+        Object vo = request.getSession().getAttribute("deleteProdVo");
+        if (vo != null){
+            info = productInfoService.splitPageVo((ProductInfoVo) vo, PAGE_SIZE);
+        }else
+            //获得第一页的数据
+         info = productInfoService.splitPage(1, PAGE_SIZE);
         request.getSession().setAttribute("info", info);
         return request.getAttribute("msg");
     }
@@ -169,5 +184,11 @@ public class ProductInfoAction {
         }//删除结束后跳到
         return "forward:/prod/deleteAjaxSplit.action";
     }
-
+    @ResponseBody
+    @RequestMapping("/condition")
+    //多条件查询
+    public void condition(ProductInfoVo vo,HttpSession session){
+        List<ProductInfo> list = productInfoService.selectCondition(vo);
+        session.setAttribute("list",list);
+    }
 }

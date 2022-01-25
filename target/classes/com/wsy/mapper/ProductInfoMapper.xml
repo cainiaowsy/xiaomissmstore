@@ -255,4 +255,40 @@
       p_date = #{pDate,jdbcType=DATE}
     where p_id = #{pId,jdbcType=INTEGER}
   </update>
+  <!--批量删除-->
+  <delete id="deleteBatch">
+    delete from product_info where p_id in
+    <foreach collection="array" item="pid" separator="," open="(" close=")">
+      #{pid}
+    </foreach>
+  </delete>
+  <!--多条件查询 -->
+  <select id="selectCondition" parameterType="com.wsy.vo.ProductInfoVo" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from product_info
+    <!--拼接条件-->
+    <where>
+    <!--商品名称不为空，拼接商品名模糊查询-->
+      <if test="pname != null and pname != ''">
+        and p_name like '%${pname}%'
+      </if>
+      <!--商品类型不为空-->
+      <if test="typeid != null and typeid != -1">
+        and type_id =#{typeid}
+      </if>
+      <!--最低价格不为空，最高为空-->
+      <if test="lprice!= null and lprice != '' and (hprice == null or hprice == '')">
+        and p_price &gt;=#{lprice}
+      </if>
+      <!--最低价格为空，最高不为空-->
+      <if test="hprice!= null and hprice != '' and (lprice == null or lprice == '')">
+        and p_price &lt;=#{hprice}
+      </if>
+      <!--最低价格不为空，最高不为空-->
+      <if test="lprice!= null and lprice != '' and (hprice != null and hprice != '')">
+        and p_price between #{lprice} and #{hprice}
+      </if>
+</where>
+order by p_id desc
+  </select>
 </mapper>

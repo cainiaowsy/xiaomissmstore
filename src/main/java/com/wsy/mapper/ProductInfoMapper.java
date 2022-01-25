@@ -2,6 +2,7 @@ package com.wsy.mapper;
 
 import com.wsy.pojo.ProductInfo;
 import com.wsy.pojo.ProductInfoExample;
+import com.wsy.vo.ProductInfoVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -28,6 +29,8 @@ public interface ProductInfoMapper {
     int updateByPrimaryKeySelective(ProductInfo record);
 
     int updateByPrimaryKey(ProductInfo record);
-
+    //批量删除
     int deleteBatch(String[] ids);
+    //多条件查询
+    List<ProductInfo> selectCondition(ProductInfoVo productInfoVo);
 }

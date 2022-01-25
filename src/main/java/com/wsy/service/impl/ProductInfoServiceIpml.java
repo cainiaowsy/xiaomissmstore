@@ -6,6 +6,7 @@ import com.wsy.mapper.ProductInfoMapper;
 import com.wsy.pojo.ProductInfo;
 import com.wsy.pojo.ProductInfoExample;
 import com.wsy.service.ProductInfoService;
+import com.wsy.vo.ProductInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,5 +64,18 @@ public class ProductInfoServiceIpml implements ProductInfoService {
     @Override
     public int deleteBatch(String[] ids) {
         return productInfoMapper.deleteBatch(ids);
+    }
+
+    @Override
+    public List<ProductInfo> selectCondition(ProductInfoVo productInfoVo) {
+        return productInfoMapper.selectCondition(productInfoVo);
+    }
+
+    @Override
+    public PageInfo<ProductInfo> splitPageVo(ProductInfoVo productInfoVo, int pagesize) {
+        //分页插件使用PageHelper工具类完成分页设置。必须最先写上！！！
+        PageHelper.startPage(productInfoVo.getPage(),pagesize);
+        List<ProductInfo> list = productInfoMapper.selectCondition(productInfoVo);
+        return new PageInfo<>(list);
     }
 }

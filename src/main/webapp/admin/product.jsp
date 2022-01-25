@@ -57,12 +57,12 @@
             商品名称：<input name="pname" id="pname">&nbsp;&nbsp;&nbsp;
             商品类型：<select name="typeid" id="typeid">
             <option value="-1">请选择</option>
-            <c:forEach items="${ptlist}" var="pt">
+            <c:forEach items="${typeList}" var="pt">
                 <option value="${pt.typeId}">${pt.typeName}</option>
             </c:forEach>
         </select>&nbsp;&nbsp;&nbsp;
             价格：<input name="lprice" id="lprice">-<input name="hprice" id="hprice">
-            <input type="button" value="查询" onclick="ajaxsplit(${info.pageNum})">
+            <input type="button" value="查询" onclick="condition()">
         </form>
     </div>
     <br>
@@ -106,10 +106,10 @@
                                     <%--&nbsp;&nbsp;&nbsp;<a href="${pageContext.request.contextPath}/admin/product?flag=one&pid=${p.pId}">修改</a></td>--%>
                                 <td>
                                     <button type="button" class="btn btn-info "
-                                            onclick="one(${p.pId})">编辑
+                                            onclick="one(${p.pId},${info.pageNum})">编辑
                                     </button>
                                     <button type="button" class="btn btn-warning" id="mydel"
-                                            onclick="del(${p.pId})">删除
+                                            onclick="del(${p.pId},${info.pageNum})">删除
                                     </button>
                                 </td>
                             </tr>
@@ -211,12 +211,16 @@
 
     }
     //单个删除
-    function del(pid) {
+    function del(pid,page) {
+        var pname = $("#pname").val();
+        var typeid = $("#typeid").val();
+        var lprice = $("#lprice").val();
+        var hprice = $("#hprice").val();
         if (confirm("确定删除吗")) {
           //向服务器提交请求完成删除
            $.ajax({
                url:"${pageContext.request.contextPath}/prod/delete.action",
-               data: {"id":pid},
+               data: {"id":pid,"page":page,"pname":pname,"typeid":typeid,"lprice":lprice,"hprice":hprice},
                type: "post",
                dataType:"text",
                success:function (msg){
@@ -227,18 +231,46 @@
         }
     }
 
-    function one(pid) {
-      //向服务器提供请求，传递商品id
-        location.href = "${pageContext.request.contextPath}/prod/one.action?id=" + pid;
+    function one(pid,page) {
+
+        var pname = $("#pname").val();
+        var typeid = $("#typeid").val();
+        var lprice = $("#lprice").val();
+        var hprice = $("#hprice").val();
+        var str = "?id="+pid+"&page="+page+"&pname="+pname+"&typeid="+typeid+"&lprice="+lprice+"&hprice="+hprice;
+        //向服务器提供请求，传递商品id
+        alert(str)
+        location.href = "${pageContext.request.contextPath}/prod/one.action" + str;
+    }
+
+    function condition() {
+        //取出查询条件
+        var pname = $("#pname").val();
+        var typeid = $("#typeid").val();
+        var lprice = $("#lprice").val();
+        var hprice = $("#hprice").val();
+        $.ajax({
+            type:"post",
+            url:"${pageContext.request.contextPath}/prod/ajaxSplit.action",
+            data:{"pname":pname,"typeid":typeid,"lprice":lprice,"hprice":hprice},
+            success:function (){
+                //重新加载显示分页数据的容器.  即 <div id="table">
+                $("#table").load("http://localhost:8080//admin/product.jsp #table")
+            }
+        })
     }
 </script>
 <!--分页的AJAX实现-->
 <script type="text/javascript">
     function ajaxsplit(page) {
        //向服务器发去ajax请求，请示page页中的所有数据，在当前页上局部刷新显示
+        var pname = $("#pname").val();
+        var typeid = $("#typeid").val();
+        var lprice = $("#lprice").val();
+        var hprice = $("#hprice").val();
         $.ajax({
             url:"${pageContext.request.contextPath}/prod/ajaxSplit.action",
-            data:{"page":page},
+            data:{"page":page,"pname":pname,"typeid":typeid,"lprice":lprice,"hprice":hprice},
             type:"post",
             success:function (){
                 //重新加载显示分页数据的容器.  即 <div id="table">
